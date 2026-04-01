@@ -25,7 +25,6 @@ def test_2_2_signup_firstname_7_chars(driver):
         firstname="Analiza"  # 7 chars
     )
 def test_2_3_signup_lastname_6_chars(driver):
-    """2.3 Functionality – Sign up with 6 characters in Last Name"""
     page = LoginPage(driver)
     assert page.signup_succeeds(
         "miri.am1@gmail.com", "@Test012",
@@ -44,7 +43,6 @@ def test_2_5_signup_all_fields(driver):
         lastname="Cohenn"
     )
 def test_2_6_signup_firstname_hebrew(driver):
-    """2.6 EH – Sign up with First Name in Hebrew (should show alert with error)"""
     page = LoginPage(driver)
     page.signup(
         "Manticof.miri@gmail.com", "Miriam99@",
