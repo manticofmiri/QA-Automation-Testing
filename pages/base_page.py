@@ -4,8 +4,6 @@ from selenium.common.exceptions import ElementClickInterceptedException
 
 class BasePage:
     def __init__(self, driver):
-        # Aquí la clase dice: "Yo no sé cómo se crea el navegador, 
-        # solo sé que cuando me den uno, lo voy a usar".
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)
 
