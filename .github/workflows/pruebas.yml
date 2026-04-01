@@ -1,0 +1,24 @@
+name: Ejecucion de Tests Automatizados
+
+on: [push]
+
+jobs:
+  test-automation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargando el codigo del repo
+        uses: actions/checkout@v4
+
+      - name: Instalando Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Instalando Selenium y Pytest
+        run: |
+          pip install selenium pytest webdriver-manager
+
+      - name: Corriendo mis tests de QA
+        run: |
+          pytest
