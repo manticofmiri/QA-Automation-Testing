@@ -16,6 +16,7 @@ class BasePage:
         try:
             element.click()
         except ElementClickInterceptedException:
+            # Respaldo en caso de que un banner o elemento bloquee el click físico
             self.driver.execute_script("arguments[0].click();", element)
 
     def type_text(self, by, locator, text):
