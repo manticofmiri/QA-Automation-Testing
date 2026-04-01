@@ -7,27 +7,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Descargando el codigo del repo
+      - name: 1. Descargando el codigo del repo
         uses: actions/checkout@v4
 
-      - name: Instalando Python
+      - name: 2. Instalando Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Instalando Selenium y Pytest
-        run: |
-          pip install selenium pytest webdriver-manager
-
-      - name: Corriendo mis tests de QA
-        run: |
-          pytest
-      - name: Set up Chrome
+      - name: 3. Instalar Google Chrome (El navegador)
         uses: browser-actions/setup-chrome@latest
         with:
           chrome-version: stable
       
-      - name: Set up ChromeDriver
+      - name: 4. Instalar ChromeDriver (El puente)
         uses: nanasess/setup-chromedriver@master
-        with:
-          chromedriver-version: '123.0.6312.4'  # Match your Chrome version
+
+      - name: 5. Instalando Librerias
+        run: |
+          pip install selenium pytest webdriver-manager
+
+      - name: 6. Corriendo mis tests de QA
+        run: |
+          pytest
