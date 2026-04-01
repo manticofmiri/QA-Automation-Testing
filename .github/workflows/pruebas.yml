@@ -22,3 +22,12 @@ jobs:
       - name: Corriendo mis tests de QA
         run: |
           pytest
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
+      
+      - name: Set up ChromeDriver
+        uses: nanasess/setup-chromedriver@master
+        with:
+          chromedriver-version: '123.0.6312.4'  # Match your Chrome version
