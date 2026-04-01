@@ -4,11 +4,6 @@ from selenium.common.exceptions import ElementClickInterceptedException
 
 
 class BasePage:
-    """
-    Clase base con métodos comunes de Selenium.
-    Todas las páginas heredan de aquí.
-    """
-
     def __init__(self, driver):
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)

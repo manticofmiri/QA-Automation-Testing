@@ -16,9 +16,6 @@ PRICES = {
 
 
 class OrderPage(BasePage):
-    """
-    Página de pedidos: seleccionar comidas, reservar y confirmar.
-    """
 
     BTN_RESERVE   = (By.XPATH, '//button[contains(text(), "Reserve")]')
     BTN_SEND      = (By.XPATH, '//button[contains(text(), "Send")]')
@@ -42,7 +39,6 @@ class OrderPage(BasePage):
     # --- Acciones de la página ---
 
     def select_meal(self, meal_name, quantity=1):
-        """Selecciona una comida del menú y devuelve su subtotal."""
         card = self.wait.until(
             EC.element_to_be_clickable(
                 (By.XPATH, f'//div[@class="card-body"][.//h5[text()="{meal_name}"]]')
@@ -57,11 +53,6 @@ class OrderPage(BasePage):
         return PRICES[meal_name] * quantity
 
     def select_meals(self, meals_dict):
-        """
-        Selecciona varias comidas.
-        meals_dict = {"Combo Meal": 1, "Kids Meal": 2}
-        Devuelve el subtotal total.
-        """
         if len(meals_dict) > 4:
             raise ValueError("Máximo 4 comidas distintas permitidas")
         total = 0
@@ -81,7 +72,6 @@ class OrderPage(BasePage):
         return self._extract_amount(label.text)
 
     def update_meal_quantity(self, meal_name, quantity):
-        """Cambia la cantidad de una comida en el formulario de reserva."""
         input_field = self.wait.until(
             EC.presence_of_element_located(
                 (By.XPATH, f'//div[label[contains(text(),"{meal_name}")]]/input')
@@ -105,7 +95,6 @@ class OrderPage(BasePage):
                 )
 
     def set_table_number(self, number):
-        """Ingresa el número de mesa."""
         table_input = self.wait.until(
             EC.presence_of_element_located(
                 (By.XPATH, '//div[label[normalize-space(.)="table No."]]/input')
@@ -115,12 +104,24 @@ class OrderPage(BasePage):
         table_input.send_keys(str(number))
         return table_input.get_attribute("value")
 
-    def get_confirmation_table_text(self):
-        """Devuelve el texto del mensaje de confirmación que incluye el número de mesa."""
+    def get_confirmation_text(self):
         element = self.wait.until(
-            EC.presence_of_element_located((By.XPATH, '//h3[contains(normalize-space(.), "")]'))
+            EC.presence_of_element_located(
+                (By.XPATH, '//h3[contains(text(), "successfully received")]')
+            )
         )
         return element.text
+
+    def get_table_number_confirmation(self):
+        element = self.wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, '//*[contains(text(), "Table") or contains(text(), "table")]')
+            )
+        )
+        return element.text
+
+    def price_of(self, meal_name):
+        return PRICES[meal_name]
 
     def logout(self):
         try:

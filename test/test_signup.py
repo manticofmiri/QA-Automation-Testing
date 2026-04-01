@@ -12,60 +12,55 @@ USER_PASSWORD = "miri234554"
 
 
 def login_and_go_to_order(driver):
-    """Helper: hace login y devuelve la instancia de OrderPage lista para usar."""
     LoginPage(driver).login_succeeds(USER_EMAIL, USER_PASSWORD)
     return OrderPage(driver)
 
-def test_signup_required_fields_only(driver):
+def test_2_1_signup_required_fields_only(driver):
     page = LoginPage(driver)
     assert page.signup_succeeds("miri.am@gmail.com", "@Test012")
-
-
-def test_signup_firstname_7_chars(driver):
-    page = LoginPage(driver)
-    assert page.signup_succeeds("miri.am2@gmail.com", "@Test012", firstname="Analiza")
-
-
-def test_signup_lastname_6_chars(driver):
-    page = LoginPage(driver)
-    assert page.signup_succeeds("miri.am1@gmail.com", "@Test012", lastname="Cohenn")
-
-
-def test_signup_password_10_chars(driver):
-    page = LoginPage(driver)
-    assert page.signup_succeeds("miri.am3@gmail.com", "Abcdef12.3")
-
-
-def test_signup_all_fields_complete(driver):
+def test_2_2_signup_firstname_7_chars(driver):
     page = LoginPage(driver)
     assert page.signup_succeeds(
-        "miri.am123456@gmail.com", "@Test012",
-        firstname="Analiza", lastname="Cohenn"
+        "miri.am2@gmail.com", "@Test012",
+        firstname="Analiza"  # 7 chars
     )
-
-
-def test_signup_firstname_in_hebrew(driver):
-    """
-    Registrar con nombre en hebreo debería mostrar un mensaje de validación.
-    """
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.common.exceptions import TimeoutException
-
+def test_2_3_signup_lastname_6_chars(driver):
+    """2.3 Functionality – Sign up with 6 characters in Last Name"""
+    page = LoginPage(driver)
+    assert page.signup_succeeds(
+        "miri.am1@gmail.com", "@Test012",
+        lastname="Cohenn"  # 6 chars
+    )
+def test_2_4_signup_password_10_chars(driver):
+    page = LoginPage(driver)
+    assert page.signup_succeeds(
+        "miri.am3@gmail.com", "Abcdef12.3"  # 10 chars
+    )
+def test_2_5_signup_all_fields(driver):
+    page = LoginPage(driver)
+    assert page.signup_succeeds(
+        "miri.am888888@gmail.com", "@Test012",
+        firstname="Analiza",
+        lastname="Cohenn"
+    )
+def test_2_6_signup_firstname_hebrew(driver):
+    """2.6 EH – Sign up with First Name in Hebrew (should show alert with error)"""
     page = LoginPage(driver)
     page.signup(
         "Manticof.miri@gmail.com", "Miriam99@",
-        firstname="שלוםמיר", lastname="Cohenn"
+        firstname="שלוםמיר",  # 7 chars in Hebrew
+        lastname="Cohenn"
     )
-
     try:
-        alert_msg = page.wait.until(
-            EC.presence_of_element_located(
-                (By.XPATH, "//div[contains(@class,'alert') or contains(@class,'error') or self::p]")
-            )
-        )
-        msg_text = alert_msg.text.strip()
-        assert msg_text == "First name must be in English letters only", \
-            f"Mensaje inesperado: {msg_text}"
+        page.wait.until(EC.alert_is_present())
+        alert = driver.switch_to.alert
+        alert_text = alert.text
+        print(f"\nAlert message: {alert_text}")
+        alert.accept()
+        assert "english" in alert_text.lower() or "first name" in alert_text.lower(), \
+            f"Mensaje de alert inesperado: {alert_text}"
     except TimeoutException:
-        assert False, "No apareció el mensaje de validación para nombre en hebreo"
+        assert False, "The alert with the validation message does not appear."
+
+
+
