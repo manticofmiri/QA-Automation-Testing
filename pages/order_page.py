@@ -36,6 +36,10 @@ class OrderPage(BasePage):
         service = round(subtotal * 0.1, 2)
         return round(subtotal + service, 2)
 
+    def calculate_expected_subtotal_for_limit(self, meals_dict):
+        """Returns the subtotal for the given meals dict using PRICES."""
+        return sum(PRICES[meal] * qty for meal, qty in meals_dict.items())
+
     # --- Acciones de la página ---
 
     def select_meal(self, meal_name, quantity=1):
@@ -133,3 +137,18 @@ class OrderPage(BasePage):
             pass
         self.click(*self.BTN_LOGOUT)
         return self.wait.until(EC.presence_of_element_located(self.WELCOME_MSG))
+
+    def wait_for_invalid_quantity_message(self):
+        return self.find(By.XPATH, "//*[contains(text(), 'Invalid value in quantity')]")
+
+    def get_meal_element(self, meal_name):
+        return self.find(
+            By.XPATH,
+            f'//div[@class="card-body"][.//h5[text()="{meal_name}"]]'
+        )
+
+    def is_meal_selection_disabled(self, meal_name):
+        element = self.get_meal_element(meal_name)
+        classes = element.get_attribute("class")
+        is_disabled_attr = element.get_attribute("disabled")
+        return is_disabled_attr is not None or "disabled" in classes or "not-clickable" in classes
