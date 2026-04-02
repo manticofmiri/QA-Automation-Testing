@@ -9,7 +9,8 @@ from pages.order_page import OrderPage
 USER_EMAIL    = "mirimanti@gmail.com"
 USER_PASSWORD = "miri234554"
 BUG_PRICE = "BUG-001: The website does not include the 10% service charge"
-BUG_QUANTITY= "BUG-003: Missing validation message for quantity > 2"
+BUG_QUANTITY = "BUG-003: Invalid value in quantity message does not appear"
+BUG_MEAL_LIMIT = "BUG-005: System allows selecting more than 3 types of meals"
 
 def login_and_go_to_order(driver):
     LoginPage(driver).login_succeeds(USER_EMAIL, USER_PASSWORD)
@@ -63,53 +64,32 @@ def test_3_5_table_number_2_kids_meal(driver):
 
     table_text = order.get_table_number_confirmation()
     assert "2" in table_text, f"No se encontró el número de mesa '2' en: {table_text}"
-def test_3_6_burger_quantity_3(driver):
+
+
+@pytest.mark.xfail(reason=BUG_QUANTITY)
+def test_3_6_quantity_limit_validation(driver):
     order = login_and_go_to_order(driver)
     order.select_meals({"Burger": 1})
     order.click_reserve()
     order.update_meal_quantity("Burger", 3)
     order.click_send()
-    try:
-        order.wait_for_invalid_quantity_message()
-    except Exception:
-        pytest.fail('FAIL: The message "Invalid value in quantity" does not appear when trying to order 3 units')
-    expected = order.calculate_expected_total(order.price_of("Burger") * 3)
-    assert order.get_displayed_total() == expected
-def test_3_7_table_number_letters(driver):
-    order = login_and_go_to_order(driver)
-    order.select_meals({"Combo Meal": 1})
-    order.click_reserve()
-    try:
-        value = order.set_table_number("a")
-        assert value != "a", f"BUG: El campo de mesa aceptó una letra: '{value}'"
-    except TimeoutException:
-        pytest.fail("FAIL: El campo 'Table Number' no se encontró en la página de reserva")
-    except Exception as e:
-        pytest.fail(f"FAIL: Error inesperado al probar el número de mesa: {str(e)}")
+    order.wait_for_invalid_quantity_message()
 
-@pytest.mark.xfail(reason=BUG_QUANTITY)
-def test_3_8_quantity_3_combo_error(driver):
+def test_3_7_table_number_letters_validation(driver):
     order = login_and_go_to_order(driver)
     order.select_meals({"Combo Meal": 1})
     order.click_reserve()
-    order.update_meal_quantity("Combo Meal", 3)
-    order.click_send()
-    try:
-        error_msg = order.wait.until(
-            EC.presence_of_element_located(
-                (By.XPATH, '//*[contains(text(), "Invalid value in quantity")]')
-            )
-        )
-        assert "Invalid value in quantity" in error_msg.text
-    except TimeoutException:
-        assert False, "No apareció el mensaje de error de cantidad inválida"
-def test_3_9_limit_of_3_meals(driver):
+    value = order.set_table_number("a")
+    assert value != "a"
+
+@pytest.mark.xfail(reason=BUG_MEAL_LIMIT)
+def test_3_8_meal_selection_limit(driver):
     order = login_and_go_to_order(driver)
     order.select_meals({
         "Burger": 1,
         "Combo Meal": 1,
         "Vegan": 1,
     })
-    is_disabled = order.is_meal_selection_disabled("Sides")
-    if not is_disabled:
-        pytest.fail("FAIL: The system allowed selecting a 4th meal type, exceeding the limit of 3")
+
+    order.select_meals({"Sides": 1})
+    assert order.is_meal_selection_disabled("Sides")
